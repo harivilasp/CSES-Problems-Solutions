@@ -2,40 +2,66 @@
 using namespace std;
 #define ll long long
 #define ar array
-
-// k smallest distances CLASSIC QUESTION
+// DP on Graphs
 
 const int MA = 1e5;
-int n,m,k;
-vector<ar<ll,2>> adj[MA];
-vector<ll> d[MA];
+int n,m;
+vector<ll> adj[MA],ans;
+int dp[MA], p[MA];
+bool vis[MA],act[MA];
+
+void dfs(int u)
+{
+    dp[u]=u==n-1?1:-1e9;
+    vis[u]=1;
+    act[u]=1;
+    for(int v : adj[u])
+    {
+        if(act[v]){
+            cout<<"IMPOSSIBLE";
+            exit(0);
+        }else{
+            if(!vis[v]){
+                p[v]=u;
+                dfs(v);
+            }
+        }
+
+        if(dp[v]+1>dp[u])
+            p[u]=v, dp[u]=dp[v]+1;
+    }
+    act[u]=0;
+    //ans.push_back(u);
+}
 
 int main()
 {
-    cin>>n>>m>>k;
+    cin>>n>>m;
     for(int i=0;i<m;i++)
     {
-        ll a,b,c;
-        cin>>a>>b>>c, --a,--b;
-        adj[a].push_back({c,b});
+        ll a,b;
+        cin>>a>>b, --a,--b;
+        adj[a].push_back(b);
     }
-    priority_queue<int, vector<int>, greater<int> > pq;
-    pq.push({0,0});
-    while(pq.size())
+    for(int i=0;i<n;i++)
     {
-        ar<ll,2> u = pq.top();
-        pq.pop();
-        if(d[u[1]].size()>=k)
-        continue;
-        d[u[1]].push_back(u[0]);
-        for(ar<ll,2> v : adj[u[1]])
-        {
-            pq.push({u[0]+v[0],v[1]});
-        }
+        if(!vis[i])
+            dfs(i);
     }
-    
-    for(int i=0;i<k;i++)
-        cout<<d[n-1][i]<<" ";
-
+    if(dp[0]<0)
+    cout<<"IMPOSSIBLE";
+    else
+    {
+        ans.push_back(0);
+        int u=0;
+        while(u^n-1)
+        {
+            u=p[u];
+            ans.push_back(u);
+        }
+        cout<<ans.size()<<"\n";
+        for(int a : ans)
+            cout<<a+1<<" ";
+    }
     return 0;
 }
